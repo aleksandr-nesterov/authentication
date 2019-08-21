@@ -1,0 +1,20 @@
+server:
+  port: 8084
+  ssl:
+    key-store-type: JCEKS
+    key-store: classpath:authentication-api/server-keystore.jks
+    key-store-password: changeit
+    trust-store: classpath:authentication-api/server-truststore.jks
+    trust-store-password: changeit
+
+account-api:
+  base-url: https://localhost:8444/accounts/
+  key-store: account-api/keystore.jks
+  key-store-password: changeit
+  trust-store: account-api/truststore.jks
+  trust-store-password: changeit
+
+jwt:
+  secret: secretKey
+  # 1 hour
+  tokenExpirationInMillis: 3600000
