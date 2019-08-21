@@ -37,7 +37,6 @@ public class AuthenticationService {
      *
      * @param username account username
      * @param password account password
-     *
      * @return {@link AuthenticateAccountResponse} response
      */
     public AuthenticateAccountResponse authenticate(String username, String password) {
@@ -48,15 +47,21 @@ public class AuthenticationService {
             throw new AuthenticationException("Account is not registered");
         }
 
-        if (authenticationManager.authenticate(password)) {
-            String token = jwtTokenProvider.generateToken(username);
-            AuthenticateAccountResponse response = new AuthenticateAccountResponse();
-            response.setToken(token);
-            return response;
+        AuthenticationManager.Result result = authenticationManager.authenticate(password);
+
+        if (result.hasInvalidPassword()) {
+            throw new AuthenticationException("Invalid password");
         }
 
-        throw new AuthenticationException("Invalid password");
+        if (result.isBlocked()) {
+            throw new AuthenticationException("Account is blocked for 24 hours");
+        }
 
+        // success
+        String token = jwtTokenProvider.generateToken(username);
+        AuthenticateAccountResponse response = new AuthenticateAccountResponse();
+        response.setToken(token);
+        return response;
     }
 
 }

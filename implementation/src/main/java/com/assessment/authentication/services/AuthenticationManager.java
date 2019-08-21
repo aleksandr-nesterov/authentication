@@ -27,16 +27,16 @@ public class AuthenticationManager {
         this.blockageDate = blockageDate;
     }
 
-    public synchronized boolean authenticate(String otherPassword) {
+    public synchronized Result authenticate(String otherPassword) {
         if (isBlocked()) {
-            throw new AuthenticationException("Account is blocked for 24 hours");
+            return Result.BLOCKED;
         }
 
         byte[] otherPasswordChecksum = MessageDigestHolder.MESSAGE_DIGEST.digest(otherPassword.getBytes());
 
         if (Arrays.equals(passwordChecksum, otherPasswordChecksum)) {
             failedAttemptsCounter = 0;
-            return true;
+            return Result.SUCCESS;
         }
 
         if (++failedAttemptsCounter == MAX_NUMBER_OF_FAILURES) {
@@ -44,7 +44,7 @@ public class AuthenticationManager {
             failedAttemptsCounter = 0;
         }
 
-        return false;
+        return Result.INVALID_PASSWORD;
 
     }
 
@@ -58,7 +58,7 @@ public class AuthenticationManager {
     }
 
     @Slf4j
-    private static final class MessageDigestHolder {
+    private static class MessageDigestHolder {
 
         private static final MessageDigest MESSAGE_DIGEST = initMessageDigest();
 
@@ -71,5 +71,17 @@ public class AuthenticationManager {
             return null;
         }
 
+    }
+
+    public enum Result {
+        SUCCESS, INVALID_PASSWORD, BLOCKED;
+
+        public boolean hasInvalidPassword() {
+            return this == INVALID_PASSWORD;
+        }
+
+        public boolean isBlocked() {
+            return this == BLOCKED;
+        }
     }
 }

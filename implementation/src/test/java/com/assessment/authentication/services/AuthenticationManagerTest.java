@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import static com.assessment.authentication.services.AuthenticationManager.Result.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthenticationManagerTest {
@@ -17,7 +18,7 @@ public class AuthenticationManagerTest {
     void expectSuccessfulAuth() {
         AuthenticationManager authenticationManager = new AuthenticationManager(PASSWORD);
 
-        assertTrue(authenticationManager.authenticate(PASSWORD));
+        assertEquals(SUCCESS, authenticationManager.authenticate(PASSWORD));
 
     }
 
@@ -25,7 +26,7 @@ public class AuthenticationManagerTest {
     void expectFailedAuth() {
         AuthenticationManager authenticationManager = new AuthenticationManager(PASSWORD);
 
-        assertFalse(authenticationManager.authenticate(WRONG_PASSWORD));
+        assertEquals(INVALID_PASSWORD, authenticationManager.authenticate(WRONG_PASSWORD));
 
     }
 
@@ -67,9 +68,9 @@ public class AuthenticationManagerTest {
         authenticationManager.authenticate(WRONG_PASSWORD);
         authenticationManager.authenticate(WRONG_PASSWORD);
 
-        AuthenticationException ex = assertThrows(AuthenticationException.class, () -> authenticationManager.authenticate(WRONG_PASSWORD));
+        AuthenticationManager.Result result = authenticationManager.authenticate(WRONG_PASSWORD);
 
-        assertEquals(ex.getMessage(), "Account is blocked for 24 hours");
+        assertEquals(BLOCKED, result);
 
     }
 

@@ -59,4 +59,18 @@ public class AuthenticationServiceTest {
 
         assertEquals("token", response.getToken());
     }
+
+    @Test
+    void expectAccountBlockageOn3Failures() {
+        authenticationService.register(USERNAME, PASSWORD);
+
+        assertThrows(AuthenticationException.class, () -> authenticationService.authenticate(USERNAME, "invalid-password"));
+        assertThrows(AuthenticationException.class, () -> authenticationService.authenticate(USERNAME, "invalid-password"));
+        assertThrows(AuthenticationException.class, () -> authenticationService.authenticate(USERNAME, "invalid-password"));
+
+        AuthenticationException ex = assertThrows(AuthenticationException.class, () -> authenticationService.authenticate(USERNAME, "invalid-password"));
+
+        assertEquals(ex.getMessage(), "Account is blocked for 24 hours");
+
+    }
 }
